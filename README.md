@@ -12,7 +12,7 @@ or run `gluster-health-report --help` for more details.
 
 Clone the repo and install using,
 
-    git clone
+    git clone https://github.com/aravindavk/gluster-health-report.git
     cd gluster-health-report
     sudo python setup.py install
 
@@ -125,3 +125,9 @@ Output:
      
     ....
     You can find the detailed health-report at ./gluster-health-report-2017-09-20-16-54.log
+
+## TODO
+
+[ ] Execute report functions in parallel
+[ ] Add configuration for `plugins-dir`
+[ ] Add more reports
