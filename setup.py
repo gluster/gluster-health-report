@@ -15,7 +15,7 @@ from setuptools import setup
 setup(
     name="gluster-health-report",
     version="0.1",
-    packages=["glusterhealth", "glusterhealth.plugins"],
+    packages=["glusterhealth", "glusterhealth.reports"],
     include_package_data=True,
     install_requires=[],
     entry_points={

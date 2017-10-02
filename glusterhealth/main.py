@@ -14,6 +14,7 @@ import time
 from argparse import ArgumentParser
 from datetime import datetime
 import os
+from subprocess import Popen, PIPE
 
 from utils import setup_logging, lf, output_ok, \
     output_notok, output_warning, output_error
@@ -21,7 +22,13 @@ from utils import setup_logging, lf, output_ok, \
 from rconf import rconf
 
 
-# Context to send to plugin functions
+reports_dir = os.path.join(
+    os.path.dirname(__file__),
+    "reports"
+)
+
+
+# Context to send to report functions
 class Context(object):
     def __init__(self, conf):
         self.lf = lf
@@ -30,6 +37,19 @@ class Context(object):
         self.warning = output_warning
         self.error = output_error
         self.conf = conf
+
+
+def execute_bash_report(path, env):
+    cmd = ["bash", path]
+    p = Popen(cmd, stderr=PIPE, stdout=PIPE, env=env)
+    out, err = p.communicate()
+    if p.returncode == 0:
+        for line in out.strip().split("\n"):
+            print(line)
+    else:
+        output_error("report error",
+                     report=os.path.basename(path),
+                     error=err.strip())
 
 
 def main():
@@ -43,9 +63,9 @@ def main():
     parser.add_argument("--log-file", help="Log File",
                         default=default_log_file)
     parser.add_argument("--include",
-                        help="List of plugins to be included in the report")
+                        help="List of reports to be included")
     parser.add_argument("--exclude",
-                        help="List of plugins to be excluded from the report")
+                        help="List of reports to be excluded")
 
     rconf.args = parser.parse_args()
 
@@ -64,66 +84,76 @@ def main():
     # Context to send to each report func call
     context = Context(rconf)
 
-    # Included plugins
-    in_plugins = []
+    # Included reports
+    in_reports = []
     if rconf.args.include is not None:
-        in_plugins = rconf.args.include.split(",")
-        in_plugins = [p.strip() for p in in_plugins]
+        in_reports = rconf.args.include.split(",")
+        in_reports = [p.strip() for p in in_reports]
     else:
-        # If plugins list not passed, include all plugins exists in
-        # plugins directory
-        plugins_dir = os.path.join(
-            os.path.dirname(__file__),
-            "plugins"
-        )
-        for p in os.listdir(plugins_dir):
-            if not p.endswith(".py") or (p in ["utils.py",
-                                               "__init__.py",
-                                               "hello.py"]):
+        # If reports list not passed, include all reports exists in
+        # reports directory
+        ignore_list = ["utils.py", "__init__.py", "hello.py",
+                       "utils.sh", "hello.sh"]
+        for p in os.listdir(reports_dir):
+            if not (p.endswith(".py") or p.endswith(".sh")) or \
+               p in ignore_list:
                 continue
 
-            p = p.replace(".py", "")
-            in_plugins.append(p)
+            p = p.replace(".py", "").replace(".sh", "")
+            in_reports.append(p)
 
-    # Excluded plugins list
-    ex_plugins = []
+    # Excluded reports list
+    ex_reports = []
     if rconf.args.exclude is not None:
-        ex_plugins = rconf.args.exclude.split(",")
-        ex_plugins = [ep.strip() for ep in ex_plugins]
+        ex_reports = rconf.args.exclude.split(",")
+        ex_reports = [ep.strip() for ep in ex_reports]
 
-    # If excluded plugins list is not empty then remove the plugins
+    # If excluded reports list is not empty then remove the reports
     # from included lists
-    if not ex_plugins:
-        plugins = in_plugins
+    if not ex_reports:
+        reports = in_reports
     else:
-        plugins = []
-        for p in in_plugins:
-            if p not in ex_plugins:
-                plugins.append(p)
+        reports = []
+        for p in in_reports:
+            if p not in ex_reports:
+                reports.append(p)
 
-    rconf.enabled_plugins = plugins
+    rconf.enabled_reports = reports
 
-    # If no plugins found
-    if not plugins:
+    # If no reports found
+    if not reports:
         print("No reports found")
         return
 
     # Logging setup
     setup_logging(log_file=rconf.log_file)
 
-    # Loaded plugins summary
-    print("Loaded plugins: %s\n" % (
-        ", ".join(plugins) if plugins else "None"))
+    # For bash scripts set env variable
+    health_report_env = os.environ.copy()
+    health_report_env["GLUSTER_HEALTH_REPORT_LOG_FILE"] = rconf.log_file
 
-    # Check each plugin, and execute the functions which starts with report_
+    # Loaded reports summary
+    print("Loaded reports: %s\n" % (
+        ", ".join(reports) if reports else "None"))
+
+    py_reports = []
+    sh_reports = []
+    for p in set(reports):
+        if os.path.exists(os.path.join(reports_dir, p + ".py")):
+            py_reports.append(p)
+
+        if os.path.exists(os.path.join(reports_dir, p + ".sh")):
+            sh_reports.append(os.path.join(reports_dir, p + ".sh"))
+
+    # Check each report, and execute the functions which starts with report_
     # TODO: All reports can be run in parallel
-    for p in plugins:
-        # If include list sent by user is corrupt or plugin has some error
+    for p in py_reports:
+        # If include list sent by user is corrupt or report has some error
         try:
-            pi = __import__("glusterhealth.plugins." + p, fromlist=p)
+            pi = __import__("glusterhealth.reports." + p, fromlist=p)
         except ImportError as e:
-            output_error("Unable to import plugin",
-                         plugin=p, error=e)
+            output_error("Unable to import report",
+                         report=p, error=e)
             continue
 
         # Get list of all functions from the imported module
@@ -133,7 +163,7 @@ def main():
             # Execute all report functions which starts with report_
             if f.startswith("report_") and callable(func):
                 logging.info(lf("Running report",
-                                plugin=p, func=f))
+                                report=p, func=f, type="python"))
                 num_reports += 1
                 start_time = int(time.time())
 
@@ -146,9 +176,25 @@ def main():
 
                 # Finished execution
                 logging.info(lf("Finished execution of report function",
-                                plugin=p,
+                                report=p,
                                 func=f,
+                                type="python",
                                 duration_sec=int(time.time())-start_time))
+
+    # Support for bash reports/reports
+    for p in sh_reports:
+        logging.info(lf("Running report", report=p, type="bash"))
+        num_reports += 1
+        start_time = int(time.time())
+
+        # Execute the bash script
+        execute_bash_report(p, health_report_env)
+
+        # Finished execution
+        logging.info(lf("Finished execution of report",
+                        report=p,
+                        type="bash",
+                        duration_sec=int(time.time())-start_time))
 
     # Log some metrics
     logging.info(lf("Completed Gluster Health check",

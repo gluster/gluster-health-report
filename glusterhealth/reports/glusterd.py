@@ -14,11 +14,15 @@ import logging
 from utils import command_output, CommandError
 
 
-def report_check_running(ctx):
-    cmd = ["ps", "-C", "glusterd"]
+def report_check_glusterd_uptime(ctx):
+    cmd = "ps -C glusterd --no-header -o etimes"
     try:
-        command_output(cmd)
-        ctx.ok("Glusterd is running")
+        out = command_output(cmd)
+        if out.strip() < "86400":
+            ctx.warning("Glusterd uptime is less than 24 hours",
+                        uptime_sec=out.strip())
+        else:
+            ctx.ok("Glusterd is running", uptime_sec=out.strip())
     except CommandError as e:
         ctx.notok("Glusterd is not running")
         logging.warn(ctx.lf("Glusterd is not running",
