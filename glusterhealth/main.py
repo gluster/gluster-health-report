@@ -137,18 +137,28 @@ def main():
     health_report_env = os.environ.copy()
     health_report_env["GLUSTER_HEALTH_REPORT_LOG_FILE"] = rconf.log_file
 
-    # Loaded reports summary
-    print("Loaded reports: %s\n" % (
-        ", ".join(reports) if reports else "None"))
-
     py_reports = []
     sh_reports = []
     for p in set(reports):
+        py_exists = sh_exists = 1
+
         if os.path.exists(os.path.join(reports_dir, p + ".py")):
             py_reports.append(p)
+        else:
+            py_exists = 0
 
         if os.path.exists(os.path.join(reports_dir, p + ".sh")):
             sh_reports.append(os.path.join(reports_dir, p + ".sh"))
+        else:
+            sh_exists = 0
+
+        if py_exists == 0 and sh_exists == 0:
+            print("WARNING: Report `%s' does not exist"%p)
+            reports.remove(p)
+
+    # Loaded reports summary
+    print("\nLoaded reports: %s\n" % (
+        ", ".join(reports) if reports else "None"))
 
     # Check each report, and execute the functions which starts with report_
     # TODO: All reports can be run in parallel
