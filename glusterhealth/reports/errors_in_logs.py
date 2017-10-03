@@ -10,7 +10,7 @@ def callback_check_errors(pline):
     if pline.log_level == "E":
         num_errors += 1
 
-    if pline.log_level == "E":
+    if pline.log_level == "W":
         num_warning += 1
 
 

@@ -94,6 +94,9 @@ def parse_log_line(data):
                 key_value = msg_parts[i].split("=")
                 # If no value, then this will be same as key
                 out.fields[key_value[0]] = key_value[-1]
+    else:
+        # Add raw message to message, Note: known_format is False
+        out.message = data
 
     return out
 

@@ -70,11 +70,44 @@ Logging is also very simple, just import `logging` and start using
 `logging.info`, `logging.warning` etc without requiring any setup.
 
 Log parsing utility is available to parse the log lines and call the
-registered callback function. Check
-`$SRC/glusterhealth/reports/errors_in_logs.py` file for more
+registered callback function. 
+
+Callback function should accept parsed log line as argument, parsed
+line is an Python object with the following properties.
+
+    known_format - True|False, Use this to find parse is successful or not
+    ts           - Timestamp
+    log_level    - Log Level
+    msg_id       - MSG ID
+    file_info    - File, Line and function information, For example: "event-epoll.c:602:event_dispatch_epoll_worker"
+    domain       - Log domain
+    message      - Log Message
+    fields       - Dict with key value pairs if structured logging is used
+
+For example, below log will be tokenized and converted as object
+
+    [2017-07-06 10:01:18.680167] I [monitor(monitor):280:monitor] Monitor: starting gsyncd worker   brick=/bricks/b1        slave_node=ssh://root@f241:gluster://localhost:gv2
+
+Converted to,
+
+    {
+        "known_format": True,
+        "ts": "2017-07-06 10:01:18.680167",
+        "log_level": "I",
+        "msg_id": None,
+        "file_info": "monitor(monitor):280:monitor",
+        "domain": "Monitor",
+        "message": "starting gsyncd worker",
+        "fields": {
+            "brick": "/bricks/b1",
+            "slave_node": "ssh://root@f241:gluster://localhost:gv2"
+        }
+    }
+
+Check `$SRC/glusterhealth/reports/errors_in_logs.py` file for more
 information about its use.
 
-Example,
+Example of Python plugin,
 
     import logging
 
