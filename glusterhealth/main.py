@@ -173,6 +173,7 @@ def main():
                     func(context)
                 except:
                     output_error("Report failure", report=f)
+                    logging.exception(lf("Report failure", report=f))
 
                 # Finished execution
                 logging.info(lf("Finished execution of report function",
