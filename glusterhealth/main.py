@@ -14,6 +14,7 @@ import time
 from argparse import ArgumentParser
 from datetime import datetime
 import os
+import sys
 from subprocess import Popen, PIPE
 
 from utils import setup_logging, lf, output_ok, \
@@ -53,6 +54,10 @@ def execute_bash_report(path, env):
 
 
 def main():
+    # Most of the features need root permissions to run
+    if (os.getuid() != 0):
+        print("Only root can run this program. Become root or use sudo.")
+        sys.exit(1)
     main_start_time = int(time.time())
     default_log_file = datetime.now().strftime(
         "gluster-health-report-%Y-%m-%d-%H-%M.log")
@@ -62,8 +67,8 @@ def main():
                         default="/var/log/glusterfs/")
     parser.add_argument("--log-file", help="Log File",
                         default=default_log_file)
-    parser.add_argument("--include",
-                        help="List of reports to be included")
+    parser.add_argument("--run-only",
+                        help="List of reports to be run")
     parser.add_argument("--exclude",
                         help="List of reports to be excluded")
 
@@ -86,8 +91,8 @@ def main():
 
     # Included reports
     in_reports = []
-    if rconf.args.include is not None:
-        in_reports = rconf.args.include.split(",")
+    if rconf.args.run_only is not None:
+        in_reports = rconf.args.run_only.split(",")
         in_reports = [p.strip() for p in in_reports]
     else:
         # If reports list not passed, include all reports exists in
