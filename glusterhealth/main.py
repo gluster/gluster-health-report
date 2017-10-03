@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2017 Red Hat, Inc.
 #
-# This file is part of libgfapi-python project which is a
+# This file is part of gluster-health-report project which is a
 # subproject of GlusterFS ( www.gluster.org)
 #
 # This file is licensed to you under your choice of the GNU Lesser
@@ -178,6 +178,7 @@ def main():
                     func(context)
                 except:
                     output_error("Report failure", report=f)
+                    logging.exception(lf("Report failure", report=f))
 
                 # Finished execution
                 logging.info(lf("Finished execution of report function",

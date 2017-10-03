@@ -10,21 +10,18 @@
 # cases as published by the Free Software Foundation.
 
 import logging
-
 from utils import command_output, CommandError
 
-
-def report_check_glusterd_uptime(ctx):
-    cmd = "ps -C glusterd --no-header -o etimes"
+def report_coredump(ctx):
+    cmd = ["ulimit", "-c"]
     try:
         out = command_output(cmd)
-        if out.strip() < "86400":
-            ctx.warning("Glusterd uptime is less than 24 hours",
-                        uptime_sec=out.strip())
+        if out.strip() == "unlimited":
+            ctx.ok("The maximum size of core files created is set to unlimted.")
         else:
-            ctx.ok("Glusterd is running", uptime_sec=out.strip())
+            ctx.notok("The maximum size of core files created is NOT set to unlimited.")
     except CommandError as e:
-        ctx.notok("Glusterd is not running")
-        logging.warn(ctx.lf("Glusterd is not running",
+        ctx.notok("ulimit check failed")
+        logging.warn(ctx.lf("ulimit check failed",
                             error_code=e[0],
                             error=e[1]))
