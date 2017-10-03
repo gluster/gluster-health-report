@@ -2,6 +2,10 @@
 
 Use this tool to analyze the Gluster node for correctness or health.
 
+## Contributing
+
+To contribute reports, please see [CONTRIBUTING](CONTRIBUTING.md).
+
 ## Usage
 
     gluster-health-report
@@ -18,7 +22,7 @@ Clone the repo and install using,
 
 ## How to add new report
 Adding new report is very simple, add a python file in
-`$SRC/plugins/myplugin.py` and implement your report. Any function
+`$SRC/reports/myreport.py` and implement your report. Any function
 which starts with the name "report_" will be executed by the health
 checker framework.
 
@@ -41,10 +45,10 @@ not.
                                 error=e[1]))
 
 
-To understand the plugin implementation, let us walk through line by
+To understand the report implementation, let us walk through line by
 line
 
-Import logging library to use logging in your report/plugin. Note:
+Import logging library to use logging in your report. Note:
 Logging setup stuff is already taken care by the framework itself.
 
     import logging
@@ -90,11 +94,11 @@ following methods.
     ctx.rconf - Runtime configurations set by framework
         ctx.rconf.log_file - Log file path
         ctx.rconf.args - Parsed Arguments namespace
-        ctx.rconf.enabled_plugins - List of enabled plugins, useful if
+        ctx.rconf.enabled_reports - List of enabled reports, useful if
             any inter dependency
 
-## Dummy plugin
-A dummy plugin is added, which just prints some messages without
+## Dummy report
+A dummy report is added, which just prints some messages without
 inspecting any health.
 
     def report_hello(ctx):
@@ -112,7 +116,7 @@ For testing it can be executed using
 
 Output:
 
-    Loaded plugins: hello
+    Loaded reports: hello
     ....
      
     [     OK] CPU Usage
@@ -128,6 +132,7 @@ Output:
 
 ## TODO
 
-[ ] Execute report functions in parallel
-[ ] Add configuration for `plugins-dir`
-[ ] Add more reports
+- [ ] Execute report functions in parallel
+- [ ] Add configuration for `reports-dir`
+- [ ] Add more reports
+- [X] Add support for bash reports
