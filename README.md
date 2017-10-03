@@ -22,7 +22,7 @@ Clone the repo and install using,
 
 ## How to add new report
 Adding new report is very simple, add a python file in
-`$SRC/reports/myreport.py` and implement your report. Any function
+`glusterhealth/reports/myreport.py` and implement your report. Any function
 which starts with the name "report_" will be executed by the health
 checker framework.
 
