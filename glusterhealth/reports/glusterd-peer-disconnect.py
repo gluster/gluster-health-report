@@ -28,6 +28,7 @@ def report_peer_disconnect(ctx):
 		dis_count = int(peer_count) - int(peer_conn_count)
 		if 0 < dis_count:
 			ctx.notok("One or more peer/s in disconnected/rejected state", total_peer_count=int(peer_count), disconnected_rejected_count=dis_count)
+			logging.warning("Peer status: \n" + out)
 		else:
 			ctx.ok("All peers are in connected state", total_peer_count=int(peer_count), connected_count=int(peer_conn_count))
 	except CommandError as e:
