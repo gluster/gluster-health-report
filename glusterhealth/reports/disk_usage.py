@@ -12,7 +12,7 @@
 import logging
 from utils import get_disk_usage_details
 	
-def check_disk_usage_percetage(ctx, path, percentage=0):
+def check_disk_usage_percentage(ctx, path, percentage=0):
 	out = get_disk_usage_details(path)
 	if out is None:
 		return
@@ -24,9 +24,9 @@ def check_disk_usage_percetage(ctx, path, percentage=0):
 			ctx.ok("Disk used percentage for \'"+ path +"\' is " + str(used_percent) +"%")
 		
 def report_system_mounts_disk_usage(ctx):
-	check_disk_usage_percetage(ctx, "/", 90)
-	check_disk_usage_percetage(ctx, "/var", 90)
-	check_disk_usage_percetage(ctx, "/tmp", 90)
+	check_disk_usage_percentage(ctx, "/", 90)
+	check_disk_usage_percentage(ctx, "/var", 90)
+	check_disk_usage_percentage(ctx, "/tmp", 90)
 
 def report_brick_disk_usage(ctx):
 	# ToDo : Add brick disk usage report
