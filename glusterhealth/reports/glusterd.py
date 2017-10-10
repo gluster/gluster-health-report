@@ -18,7 +18,7 @@ def report_check_glusterd_uptime(ctx):
     cmd = "ps -C glusterd --no-header -o etimes"
     try:
         out = command_output(cmd)
-        if out.strip() < "86400":
+        if int(out.strip()) < 86400:
             ctx.warning("Glusterd uptime is less than 24 hours",
                         uptime_sec=out.strip())
         else:
