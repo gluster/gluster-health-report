@@ -9,6 +9,7 @@
 # later), or the GNU General Public License, version 2 (GPLv2), in all
 # cases as published by the Free Software Foundation.
 
+import logging
 import re
 from subprocess import Popen, PIPE
 
@@ -107,3 +108,30 @@ def process_log_file(path, callback, filterfunc=lambda l: True):
             if filterfunc(line):
                 pline = parse_log_line(line)
                 callback(pline)
+
+class DiskUsage(object):
+	def __init__(self, device, size, used, available, percentage, mountpoint):
+		self.device = device
+		self.size = size
+		self.used = used
+		self.available = available
+		self.percentage = percentage
+		self.mountpoint = mountpoint
+
+
+def get_disk_usage_details(path):
+	if path is None:
+		return
+	cmd = ["df", path]
+	try:
+		out = command_output(cmd)
+		device, size, used, available, percentage, mountpoint = \
+			out.split("\n")[1].split()
+
+		return DiskUsage(device, size, used, available, percentage, mountpoint)
+	except CommandError as e:
+		logging.warning("Disk usage: \n" + out)
+		logging.warn(ctx.lf("disk usage failed",
+					 error_code=e[0],
+					 error=e[1]))
+	return None
