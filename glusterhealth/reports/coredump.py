@@ -13,7 +13,7 @@ import logging
 from utils import command_output, CommandError
 
 def report_coredump(ctx):
-    cmd = ["ulimit", "-c"]
+    cmd = "ulimit -c"
     try:
         out = command_output(cmd)
         if out.strip() == "unlimited":
