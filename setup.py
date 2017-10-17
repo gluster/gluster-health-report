@@ -17,7 +17,7 @@ setup(
     version="0.1",
     packages=["glusterhealth", "glusterhealth.reports"],
     include_package_data=True,
-    install_requires=[],
+    install_requires=["glustercli"],
     entry_points={
         "console_scripts": [
             "gluster-health-report = glusterhealth.main:main"
