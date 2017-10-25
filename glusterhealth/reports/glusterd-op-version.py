@@ -25,7 +25,7 @@ def report_check_glusterd_op_version(ctx):
         if version1 != version2 :
             ctx.warning("op-version is not up to date")
         else:
-            ctx.ok("Glusterd is running", uptime_sec=out.strip())
+            ctx.ok("op-version is up to date")
     except CommandError as e:
         ctx.notok("Failed to check op-version")
         logging.warn(ctx.lf("Failed to check op-version",
