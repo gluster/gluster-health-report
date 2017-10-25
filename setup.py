@@ -14,7 +14,7 @@ from setuptools import setup
 
 setup(
     name="gluster-health-report",
-    version="0.1",
+    version="0.4",
     packages=["glusterhealth", "glusterhealth.reports"],
     include_package_data=True,
     install_requires=["glustercli"],
@@ -38,7 +38,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "Topic :: Utilities",
         "Environment :: Console",
-        "License :: OSI Approved :: GPLv2 License",
+        "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.6",
