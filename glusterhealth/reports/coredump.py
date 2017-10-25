@@ -17,7 +17,7 @@ def report_coredump(ctx):
     try:
         out = command_output(cmd)
         if out.strip() == "unlimited":
-            ctx.ok("The maximum size of core files created is set to unlimted.")
+            ctx.ok("The maximum size of core files created is set to unlimited.")
         else:
             ctx.notok("The maximum size of core files created is NOT set to unlimited.")
     except CommandError as e:

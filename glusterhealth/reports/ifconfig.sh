@@ -15,7 +15,7 @@ for interface in $(ifconfig | grep -v ^\ | grep ':' | cut -f 1 -d':'); do
     echo $rx_err | grep -v -q -e '[1-9]'
     RET=$?
     if [ $RET != 0 ] ; then
-       NOTOK Recieve errors in \"ifconfig $interface\" output
+       NOTOK Receive errors in \"ifconfig $interface\" output
        LOGWARNING RX Errors seen, try 'ethtool': $rx_err
        LOGINFO $(ethtool -S $interface);
        all_ok=0

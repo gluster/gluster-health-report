@@ -19,7 +19,7 @@ def check_disk_usage_percentage(ctx, path, percentage=0):
 	if out.percentage:
 		used_percent = int(out.percentage.split('%')[0])
 		if used_percent >= percentage:
-			ctx.notok("Disk used percentage is exceeding, consider deleting unneccesary data", path=path, percentage=percentage)
+			ctx.notok("Disk used percentage is exceeding threshold, consider deleting unnecessary data", path=path, percentage=percentage)
 		else:
 			ctx.ok("Disk used percentage", path=path, percentage=used_percent)
 		
