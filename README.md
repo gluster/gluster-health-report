@@ -2,6 +2,11 @@
 
 Use this tool to analyze the Gluster node for correctness or health.
 
+**NOTE**: This project's goal is not to improve 'monitoring' capabilities
+of Gluster, but to make sure we don't miss analyzing something important
+when an issue happens. Also recommend it to be run daily if some one
+doesn't have any other monitoring setup, but not more frequent than that.
+
 ## Contributing
 
 To contribute reports, please see [CONTRIBUTING](CONTRIBUTING.md).
