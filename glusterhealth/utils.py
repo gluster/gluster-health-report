@@ -15,7 +15,7 @@ from logging import Logger, handlers
 import sys
 import time
 
-from rconf import rconf
+from .rconf import rconf
 
 RED = "\033[31m"
 GREEN = "\033[32m"

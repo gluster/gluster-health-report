@@ -109,29 +109,30 @@ def process_log_file(path, callback, filterfunc=lambda l: True):
                 pline = parse_log_line(line)
                 callback(pline)
 
+
 class DiskUsage(object):
-	def __init__(self, device, size, used, available, percentage, mountpoint):
-		self.device = device
-		self.size = size
-		self.used = used
-		self.available = available
-		self.percentage = percentage
-		self.mountpoint = mountpoint
+    def __init__(self, device, size, used, available, percentage, mountpoint):
+        self.device = device
+        self.size = size
+        self.used = used
+        self.available = available
+        self.percentage = percentage
+        self.mountpoint = mountpoint
 
 
-def get_disk_usage_details(path):
-	if path is None:
-		return
-	cmd = ["df", path]
-	try:
-		out = command_output(cmd)
-		device, size, used, available, percentage, mountpoint = \
-			out.split("\n")[1].split()
+def get_disk_usage_details(path, ctx):
+    if path is None:
+        return
+    cmd = ["df", path]
+    try:
+        out = command_output(cmd)
+        device, size, used, available, percentage, mountpoint = \
+            out.split("\n")[1].split()
 
-		return DiskUsage(device, size, used, available, percentage, mountpoint)
-	except CommandError as e:
-		logging.warning("Disk usage: \n" + out)
-		logging.warn(ctx.lf("disk usage failed",
-					 error_code=e[0],
-					 error=e[1]))
-	return None
+        return DiskUsage(device, size, used, available, percentage, mountpoint)
+    except CommandError as e:
+        logging.warning("Disk usage: \n" + out)
+        logging.warn(ctx.lf("disk usage failed",
+                     error_code=e[0],
+                     error=e[1]))
+    return None

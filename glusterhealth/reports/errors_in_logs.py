@@ -1,5 +1,6 @@
-from utils import process_log_file
 import datetime
+
+from .utils import process_log_file
 
 num_errors = 0
 num_warning = 0
@@ -9,7 +10,7 @@ def callback_check_errors(pline):
     global num_errors, num_warning
     if pline.ts is None:
         return
-    pl =  datetime.datetime.strptime(pline.ts, "%Y-%m-%d %H:%M:%S.%f")
+    pl = datetime.datetime.strptime(pline.ts, "%Y-%m-%d %H:%M:%S.%f")
     t = datetime.datetime.now() - datetime.timedelta(hours=23)
     if pl > t:
         if pline.log_level == "E":

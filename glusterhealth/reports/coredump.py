@@ -10,16 +10,20 @@
 # cases as published by the Free Software Foundation.
 
 import logging
-from utils import command_output, CommandError
+
+from .utils import command_output, CommandError
+
 
 def report_coredump(ctx):
     cmd = "ulimit -c"
     try:
         out = command_output(cmd)
         if out.strip() == "unlimited":
-            ctx.ok("The maximum size of core files created is set to unlimited.")
+            ctx.ok("The maximum size of core files created is set to "
+                   "unlimted.")
         else:
-            ctx.notok("The maximum size of core files created is NOT set to unlimited.")
+            ctx.notok("The maximum size of core files created is NOT set "
+                      "to unlimited.")
     except CommandError as e:
         ctx.notok("ulimit check failed")
         logging.warn(ctx.lf("ulimit check failed",

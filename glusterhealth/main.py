@@ -9,6 +9,7 @@
 # later), or the GNU General Public License, version 2 (GPLv2), in all
 # cases as published by the Free Software Foundation.
 
+from __future__ import print_function
 import logging
 import time
 from argparse import ArgumentParser
@@ -17,11 +18,13 @@ import os
 import sys
 from subprocess import Popen, PIPE
 
-from utils import setup_logging, lf, output_ok, \
+from .utils import setup_logging, lf, output_ok, \
     output_notok, output_warning, output_error
 
-from rconf import rconf
+from .rconf import rconf
 
+
+PY3K = sys.version_info >= (3, 0)
 
 reports_dir = os.path.join(
     os.path.dirname(__file__),
@@ -45,8 +48,8 @@ def execute_bash_report(path, env):
     p = Popen(cmd, stderr=PIPE, stdout=PIPE, env=env)
     out, err = p.communicate()
     if p.returncode == 0:
-        for line in out.strip().split("\n"):
-            print(line)
+        for line in out.strip().split(b"\n"):
+            print(line.decode() if PY3K else line)
     else:
         output_error("report error",
                      report=os.path.basename(path),
@@ -153,7 +156,7 @@ def main():
             sh_exists = 0
 
         if py_exists == 0 and sh_exists == 0:
-            print("WARNING: Report `%s' does not exist"%p)
+            print("WARNING: Report `%s' does not exist" % p)
             reports.remove(p)
 
     # Loaded reports summary

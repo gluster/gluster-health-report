@@ -11,7 +11,7 @@
 
 import logging
 
-from utils import command_output, CommandError
+from .utils import command_output, CommandError
 
 
 def report_check_glusterd_uptime(ctx):

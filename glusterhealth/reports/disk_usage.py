@@ -9,25 +9,29 @@
 # later), or the GNU General Public License, version 2 (GPLv2), in all
 # cases as published by the Free Software Foundation.
 
-import logging
-from utils import get_disk_usage_details
-	
+from .utils import get_disk_usage_details
+
+
 def check_disk_usage_percentage(ctx, path, percentage=0):
-	out = get_disk_usage_details(path)
-	if out is None:
-		return
-	if out.percentage:
-		used_percent = int(out.percentage.split('%')[0])
-		if used_percent >= percentage:
-			ctx.notok("Disk used percentage is exceeding threshold, consider deleting unnecessary data", path=path, percentage=percentage)
-		else:
-			ctx.ok("Disk used percentage", path=path, percentage=used_percent)
-		
+    out = get_disk_usage_details(path, ctx)
+    if out is None:
+        return
+    if out.percentage:
+        used_percent = int(out.percentage.split('%')[0])
+        if used_percent >= percentage:
+            ctx.notok("Disk used percentage is exceeding threshold, "
+                      "consider deleting unnecessary data",
+                      path=path, percentage=percentage)
+        else:
+            ctx.ok("Disk used percentage", path=path, percentage=used_percent)
+
+
 def report_system_mounts_disk_usage(ctx):
-	check_disk_usage_percentage(ctx, "/", 90)
-	check_disk_usage_percentage(ctx, "/var", 90)
-	check_disk_usage_percentage(ctx, "/tmp", 90)
+    check_disk_usage_percentage(ctx, "/", 90)
+    check_disk_usage_percentage(ctx, "/var", 90)
+    check_disk_usage_percentage(ctx, "/tmp", 90)
+
 
 def report_brick_disk_usage(ctx):
-	# ToDo : Add brick disk usage report
-	pass
+    # ToDo : Add brick disk usage report
+    pass

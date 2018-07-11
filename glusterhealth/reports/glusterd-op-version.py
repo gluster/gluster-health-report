@@ -11,7 +11,7 @@
 
 import logging
 
-from utils import command_output, CommandError
+from .utils import command_output, CommandError
 
 
 def report_check_glusterd_op_version(ctx):
@@ -21,11 +21,12 @@ def report_check_glusterd_op_version(ctx):
         out1 = command_output(cmd1)
         out2 = command_output(cmd2)
         version1 = out1.split("\n")[-1].split(" ")[-1].strip()
-        version2 = out1.split("\n")[-1].split(" ")[-1].strip()
-        if version1 != version2 :
+        version2 = out2.split("\n")[-1].split(" ")[-1].strip()
+        if version1 != version2:
             ctx.warning("op-version is not up to date")
         else:
-            ctx.ok("op-version is up to date")
+            ctx.ok("op-version is up to date", op_version=version1,
+                   max_op_version=version2)
     except CommandError as e:
         ctx.notok("Failed to check op-version")
         logging.warn(ctx.lf("Failed to check op-version",
