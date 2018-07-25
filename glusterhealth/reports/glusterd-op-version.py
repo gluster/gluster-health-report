@@ -20,8 +20,8 @@ def report_check_glusterd_op_version(ctx):
     try:
         out1 = command_output(cmd1)
         out2 = command_output(cmd2)
-        version1 = out1.split("\n")[-1].split(" ")[-1].strip()
-        version2 = out2.split("\n")[-1].split(" ")[-1].strip()
+        version1 = out1.split()[-1]
+        version2 = out2.split()[-1]
         if version1 != version2:
             ctx.warning("op-version is not up to date")
         else:
