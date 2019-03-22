@@ -1,7 +1,7 @@
 import logging
 
 from .utils import command_output, CommandError
-from .utils import process_log_file
+from .utils import process_log_file, byteorstr
 
 num_errors = 0
 
@@ -25,8 +25,9 @@ def report_peer_disconnect(ctx):
     cmd = "gluster peer status"
     try:
         out = command_output(cmd)
-        peer_count = out.split("\n")[0].split(":")[1].strip()
-        peer_conn_count = out.count("(Connected)")
+        peer_count = out.split(byteorstr("\n"))[0].split(
+            byteorstr(":"))[1].strip()
+        peer_conn_count = out.count(byteorstr("(Connected)"))
         dis_count = int(peer_count) - int(peer_conn_count)
         if 0 < dis_count:
             ctx.notok("One or more peer/s in disconnected/rejected state",
@@ -37,8 +38,8 @@ def report_peer_disconnect(ctx):
             ctx.ok("All peers are in connected state",
                    total_peer_count=int(peer_count),
                    connected_count=int(peer_conn_count))
-    except CommandError as e:
+    except CommandError as err:
         ctx.notok("Failed to check peer status")
         logging.warn(ctx.lf("peer status command failed",
-                            error_code=e[0],
-                            error=e[1]))
+                            error_code=err.message[0],
+                            error=err.message[2]))

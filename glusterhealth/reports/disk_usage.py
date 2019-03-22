@@ -9,7 +9,7 @@
 # later), or the GNU General Public License, version 2 (GPLv2), in all
 # cases as published by the Free Software Foundation.
 
-from .utils import get_disk_usage_details
+from .utils import get_disk_usage_details, byteorstr
 
 
 def check_disk_usage_percentage(ctx, path, percentage=0):
@@ -17,7 +17,7 @@ def check_disk_usage_percentage(ctx, path, percentage=0):
     if out is None:
         return
     if out.percentage:
-        used_percent = int(out.percentage.split('%')[0])
+        used_percent = int(out.percentage.split(byteorstr('%'))[0])
         if used_percent >= percentage:
             ctx.notok("Disk used percentage is exceeding threshold, "
                       "consider deleting unnecessary data",

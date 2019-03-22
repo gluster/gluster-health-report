@@ -29,7 +29,7 @@ def report_gluster_hung_task(ctx):
                 if task_name in gluster_binaries:
                     gldict[task_name] = gldict[task_name] + 1
 
-    for task_name, times in gldict.iteritems():
+    for task_name, times in gldict.items():
         if times > 0:
             ctx.error("Gluster process was hung/blocked for more than "
                       "120 seconds",

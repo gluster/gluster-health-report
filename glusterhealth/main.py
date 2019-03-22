@@ -189,7 +189,7 @@ def main():
                 # In case of exception, log failure and also not_ok message
                 try:
                     func(context)
-                except:
+                except Exception:
                     output_error("Report failure", report=f)
                     logging.exception(lf("Report failure", report=f))
 

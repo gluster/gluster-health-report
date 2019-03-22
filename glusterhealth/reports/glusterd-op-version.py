@@ -11,7 +11,7 @@
 
 import logging
 
-from .utils import command_output, CommandError
+from .utils import command_output, CommandError, strfrombytes
 
 
 def report_check_glusterd_op_version(ctx):
@@ -20,8 +20,8 @@ def report_check_glusterd_op_version(ctx):
     try:
         out1 = command_output(cmd1)
         out2 = command_output(cmd2)
-        version1 = out1.split()[-1]
-        version2 = out2.split()[-1]
+        version1 = strfrombytes(out1.split()[-1])
+        version2 = strfrombytes(out2.split()[-1])
         if version1 != version2:
             ctx.warning("op-version is not up to date")
         else:

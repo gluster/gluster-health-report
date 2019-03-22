@@ -12,10 +12,24 @@
 import logging
 import re
 from subprocess import Popen, PIPE
+import sys
+
+
+def byteorstr(val):
+    if sys.version_info >= (3,):
+        return val.encode()
+    return val
+
+
+def strfrombytes(val):
+    if sys.version_info >= (3,):
+        return val.decode()
+    return val
 
 
 class CommandError(Exception):
-    pass
+    def __init__(self, value):
+        self.message = value
 
 
 def command_output(cmd):
@@ -23,19 +37,19 @@ def command_output(cmd):
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=shell)
     out, err = p.communicate()
     if p.returncode != 0:
-        raise CommandError(p.returncode, err.strip())
+        raise CommandError((p.returncode, out.strip(), err.strip()))
 
     return out
 
 
 # [TS] LOG_LEVEL [MSGID: <ID>] [FILE:LINE:FUNC] DOMAIN: MSG
 # MSGID is optional and MSG can be structured log format or can be normal msg
-log_pattern = re.compile('\[([^\]]+)\]\s'
-                         '([IEWTD])\s'
-                         '(\[MSGID:\s([^\]]+)\]\s)?'
-                         '\[([^\]]+)\]\s'
-                         '([^:]+):\s'
-                         '(.+)')
+log_pattern = re.compile(r'\[([^\]]+)\]\s'
+                         r'([IEWTD])\s'
+                         r'(\[MSGID:\s([^\]]+)\]\s)?'
+                         r'\[([^\]]+)\]\s'
+                         r'([^:]+):\s'
+                         r'(.+)')
 
 
 class ParsedData(object):
@@ -127,12 +141,12 @@ def get_disk_usage_details(path, ctx):
     try:
         out = command_output(cmd)
         device, size, used, available, percentage, mountpoint = \
-            out.split("\n")[1].split()
+            out.split(byteorstr("\n"))[1].split()
 
         return DiskUsage(device, size, used, available, percentage, mountpoint)
-    except CommandError as e:
+    except CommandError as err:
         logging.warning("Disk usage: \n" + out)
         logging.warn(ctx.lf("disk usage failed",
-                     error_code=e[0],
-                     error=e[1]))
+                     error_code=err.message[0],
+                     error=err.message[2]))
     return None

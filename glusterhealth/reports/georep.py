@@ -1,15 +1,24 @@
 import logging
+import os
 
 from .utils import process_log_file
 
 from gluster.cli import volume, georep
 
 
-GSYNCD_LOG_FILE = ("/var/log/glusterfs/geo-replication/gv1/"
-                   "ssh%3A%2F%2Froot%40192.168.122.208%3Agluster"
-                   "%3A%2F%2F127.0.0.1%3Agv2.log")
-
 worker_restarts_data = {}
+
+
+def get_georep_log_files():
+    logfiles = []
+    prefix = "/var/log/glusterfs/geo-replication"
+    for sessiondir in os.listdir(prefix):
+        p = os.path.join(prefix, sessiondir)
+        gsyncdlogfile = os.path.join(p, "gsyncd.log")
+        if os.path.isdir(p) and os.path.exists(gsyncdlogfile):
+            logfiles.append(gsyncdlogfile)
+
+    return logfiles
 
 
 def filter_worker_restarts(line):
@@ -34,14 +43,16 @@ def callback_worker_restarts(pline):
 
 
 def report_check_worker_restarts(ctx):
-    process_log_file(GSYNCD_LOG_FILE, callback_worker_restarts,
-                     filter_worker_restarts)
-    for k, v in worker_restarts_data.items():
-        if v <= 1:
-            ctx.ok("No Gsyncd worker restart", brick=k)
-        else:
-            ctx.warning("Gsyncd worker restarted more than once",
-                        brick=k, num_restarts=v)
+    for logfile in get_georep_log_files():
+        geosession = os.path.basename(os.path.dirname(logfile))
+        process_log_file(logfile, callback_worker_restarts,
+                         filter_worker_restarts)
+        for k, v in worker_restarts_data.items():
+            if v <= 1:
+                ctx.ok("No Gsyncd worker restart", brick=k, session=geosession)
+            else:
+                ctx.warning("Gsyncd worker restarted more than once",
+                            brick=k, num_restarts=v, session=geosession)
 
 
 def report_non_participating_bricks(ctx):
