@@ -4,15 +4,7 @@
   remote_user: root
 
   tasks:
-  - name: Downloading pip2 from bootstrap.pypa
-    get_url:
-      url: https://bootstrap.pypa.io/get-pip.py
-      dest: /root/get-pip.py
-
-  - name: Installing pip2
-    command: "python get-pip.py"
-
-  - name: Installing gluster-health-report using pip
-    pip:
+  - name: Installing gluster-health-report using easy_install
+    easy_install:
       name: gluster-health-report
       state: latest
