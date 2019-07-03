@@ -1,0 +1,10 @@
+---
+- hosts: gluster_servers
+  gather_facts: no
+  remote_user: root
+
+  tasks:
+  - name: Installing gluster-health-report using easy_install
+    easy_install:
+      name: gluster-health-report
+      state: latest
